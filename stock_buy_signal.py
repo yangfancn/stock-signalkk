@@ -291,8 +291,8 @@ def detect_buy_signal(df):
     if ma5_up and ma10_up and ma20_up: score += 2
     if price > ma20: score += 1
 
-    # 评分 >= 5 视为买入信号
-    is_buy = score >= 5
+    # 评分 >= 7 视为买入信号（提高标准，少而精）
+    is_buy = score >= 7
 
     details = {
         "代码": "", "名称": "",
@@ -420,7 +420,7 @@ def main():
         content += f"**扫描结果**：共扫描 {total} 只，发现买入信号 {len(buy_stocks)} 只\n\n"
         content += "---\n\n"
 
-        for i, s in enumerate(buy_stocks[:20], 1):
+        for i, s in enumerate(buy_stocks[:10], 1):
             # 信号标签
             tags = []
             if s["5日金叉10日"]: tags.append("金叉")
@@ -430,13 +430,12 @@ def main():
             tag_str = "、".join(tags) if tags else "趋势向好"
 
             content += f"**{i}. {s['代码']} {s['名称']}**\n"
-            content += f"- 现价：{s['最新价']}元 | 量比：{s['量比']} | 买入评分：{s['买入评分']}\n"
-            content += f"- 5日：{s['5日线']} | 10日：{s['10日线']} | 20日：{s['20日线']} | 60日：{s['60日线']}\n"
-            content += f"- 信号：{tag_str}\n"
-            content += f"- 建议：在{s['最新价']}元附近或回踩20日线({s['20日线']}元)分批建仓，跌破{round(s['20日线']*0.97, 2)}元止损\n\n"
+            content += f"现价：{s['最新价']}元 | 评分：{s['买入评分']} | 量比：{s['量比']}\n"
+            content += f"信号：{tag_str}\n"
+            content += f"20日线：{s['20日线']}元（止损参考：{round(s['20日线']*0.97, 2)}元）\n\n"
 
-        if len(buy_stocks) > 20:
-            content += f"\n*还有 {len(buy_stocks) - 20} 只买入信号股票未列出*\n\n"
+        if len(buy_stocks) > 10:
+            content += f"\n*还有 {len(buy_stocks) - 10} 只买入信号股票未列出*\n\n"
 
         content += "---\n"
         content += "*买入标准：5日金叉10日 + 股价上穿20日 + 多头排列 + 成交量放大*\n"
